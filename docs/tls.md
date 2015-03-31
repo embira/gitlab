@@ -2,13 +2,11 @@
 ---
 
 1. Create key of domain: **`domain.key`**
-
     * Create original key with password
-
+    
         ```
         openssl genrsa -des3 2048 > domain.key.origin
         ```
-        
     * Create key without password
 
         ```
@@ -16,13 +14,11 @@
         ```
         
 1. Create certification of domain: **`domain.crt`**
-
     * Create **scr** by original key woth password
 
         ```
         openssl reg -new -key domain.key.origin > domain.csr
         ```
-    
     * Create **crt** by csr & original key with password
 
         ```
