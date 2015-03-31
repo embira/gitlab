@@ -7,7 +7,7 @@ Confirmed with GitLab 7.9.x on CentOS 6.x
 
 ## Installation
 
-The [`install.sh`](scripts/install.sh) will be used to install and configure the **gitlab** package. The following components will be installed.
+The [install.sh](scripts/install.sh) will be used to install and configure the **gitlab** package. The following components will be installed.
 
 | Component | Role | Mode | Status |
 |--------------|-----------------------|-------------------|-----------|
@@ -24,7 +24,7 @@ The [`install.sh`](scripts/install.sh) will be used to install and configure the
     curl -O https://downloads-packages.s3.amazonaws.com/centos-6.6/gitlab-7.9.0_omnibus.1-1.el6.x86_64.rpm
     ```
 
-1. Run [`install.sh`](scripts/install.sh)
+1. Run [install.sh](scripts/install.sh)
 
     ```
     sudo install.sh domain gitlab-x.x.x_xxx.rpm
