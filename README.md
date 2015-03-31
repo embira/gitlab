@@ -1,5 +1,5 @@
 # Usage Manual
-Host by Apache with https://domain/gitlab/
+Host by Apache with https://domain/gitlab/ <br/>Confirmed with GitLab 7.9.x on CentOS 6.x
 
 [TOC]
 
@@ -27,8 +27,18 @@ The [`install.sh`](scripts/install.sh) will be used to install and configure the
     ```
     sudo install.sh domain gitlab-x.x.x_xxx.rpm
     ```
+    * Output
+    
+        ```
+        run: logrotate: (pid 23600) 1077s; run: log: (pid 622) 738877s
+        nginx disabled
+        run: postgresql: (pid 11427) 226987s; run: log: (pid 626) 738877s
+        run: redis: (pid 11448) 226987s; run: log: (pid 625) 738877s
+        run: sidekiq: (pid 11453) 226986s; run: log: (pid 627) 738877s
+        run: unicorn: (pid 11526) 226981s; run: log: (pid 624) 738877s
+        ```
 
-1. Browse to the hostname and login by default initial **root** user
+1. Browse to the *https://domain/gitlab* and login by default initial **root** user
 
     ```
     Username: root
@@ -48,16 +58,6 @@ The [`install.sh`](scripts/install.sh) will be used to install and configure the
     ```
     sudo rpm -Uvh gitlab-x.x.x_xxx.rpm
     ```
-    * Output
-    
-        ```
-        run: logrotate: (pid 23600) 1077s; run: log: (pid 622) 738877s
-        nginx disabled
-        run: postgresql: (pid 11427) 226987s; run: log: (pid 626) 738877s
-        run: redis: (pid 11448) 226987s; run: log: (pid 625) 738877s
-        run: sidekiq: (pid 11453) 226986s; run: log: (pid 627) 738877s
-        run: unicorn: (pid 11526) 226981s; run: log: (pid 624) 738877s
-        ```
     
 1. Reconfigure
 
@@ -70,6 +70,6 @@ The [`install.sh`](scripts/install.sh) will be used to install and configure the
 
 ## See Also
 
-* Usage Summary of GitLab - [gitlab.md](./gitlab.md)
+* Usage Summary of GitLab - [gitlab.md](./docs/gitlab.md)
 
 [archives]: https://about.gitlab.com/downloads/archives/
