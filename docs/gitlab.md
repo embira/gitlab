@@ -10,8 +10,7 @@
 
 ## Installation
 
-Host by nginx with http://domain/
-
+Host by nginx with http://domain/  
 Components will be installed
 
 | Component | Port | Role | Mode |
@@ -133,7 +132,8 @@ Just login as **root**, and then disable the *Signup enabled* option in *Admin a
 
 ## Relative URL Support
 
-* Relative url support in `/opt/gitlab/embedded/service/gitlab-rails/config/application.rb` (**PAT: `gitlab-ctl reconfigure` will discard all of the following settings by manually.**)
+* Relative url support in `/opt/gitlab/embedded/service/gitlab-rails/config/application.rb`  
+**PAT: `gitlab-ctl reconfigure` will discard all of the following settings by manually.**
     
     ```
     # Relative url support
