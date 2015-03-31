@@ -60,7 +60,7 @@ fi
 if [ $# -ne 2 ]; then
     echo
     echo 'Usage:'
-    echo "\t`basename $0` <domain> <gitlab-x.x.x_xxx.rpm>"
+    echo "        `basename $0` <domain> <gitlab-x.x.x_xxx.rpm>"
     echo
     exit 1
 fi
