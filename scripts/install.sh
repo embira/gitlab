@@ -134,7 +134,8 @@ if pask 'Install apache mod_ssl'; then
     fi
 fi
 if [ ! -f '/etc/httpd/conf.d/ssl/gitlab-ssl.conf' ]; then
-    cp ../etc/gitlab-ssl.conf /etc/httpd/conf.d/ssl/ \
+    FPATH="$(dirname `readlink -e $0`)"
+    cp "${FPATH%/*}/etc/gitlab-ssl.conf" /etc/httpd/conf.d/ssl/ \
     || { echo; errmsg 'Error: install gitlab-ssl.conf failed!'; echo; exit 1; }
     sed -i -e "s/gitlab.example.com/$DOMAIN/" /etc/httpd/conf.d/ssl/gitlab-ssl.conf
 fi
