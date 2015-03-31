@@ -12,15 +12,16 @@
 
 Host by nginx with http://domain/
 
-* Components will be installed
+Components will be installed
 
- | Component | Port | Role | Mode |
- |--------------|--------|-----------------------|-------------------|
- | unicorn      | 8080   | HTTP server for ruby  | GitLab embedded   |
- | postgresql   | ????   | Database server       | GitLab embedded   |
- | redis        | ????   | Cache                 | GitLab embedded   |
- | sidekiq      | ????   | Message Queue         | GitLab embedded   |
- | nginx        | 80/443 | HTTP + TLS server     | GitLab embedded   |
+| Component | Port | Role | Mode |
+|--------------|--------|-----------------------|-------------------|
+| unicorn      | 8080   | HTTP server for ruby  | GitLab embedded   |
+| postgresql   | ????   | Database server       | GitLab embedded   |
+| redis        | ????   | Cache                 | GitLab embedded   |
+| sidekiq      | ????   | Message Queue         | GitLab embedded   |
+| nginx        | 80/443 | HTTP + TLS server     | GitLab embedded   |
+
 
 1. Install the necessary dependencies
 
@@ -43,7 +44,6 @@ Host by nginx with http://domain/
     ```
     sudo gitlab-ctl reconfigure
     ```
-
   * Confirm
 
         ```
@@ -200,13 +200,12 @@ Just login as **root**, and then disable the *Signup enabled* option in *Admin a
 
 * GitLab offical site: https://about.gitlab.com/
 
-
- | Contents | URL |
- |--------|--------|
- | All CE versions      | https://about.gitlab.com/downloads/archives/ |
- | Offical installation | https://about.gitlab.com/downloads/ |
- | Update instruction   | https://gitlab.com/gitlab-org/omnibus-gitlab/blob/master/doc/update.md |
- | Setting              | https://gitlab.com/gitlab-org/omnibus-gitlab/tree/master/doc/settings |
+| Contents | URL |
+|--------|--------|
+| All CE versions      | https://about.gitlab.com/downloads/archives/ |
+| Offical installation | https://about.gitlab.com/downloads/ |
+| Update instruction   | https://gitlab.com/gitlab-org/omnibus-gitlab/blob/master/doc/update.md |
+| Setting              | https://gitlab.com/gitlab-org/omnibus-gitlab/tree/master/doc/settings |
 
 * Host by subdirectory **/gitlab**: http://qiita.com/tnamao/items/a7bb1ca868b594eaf788
 
