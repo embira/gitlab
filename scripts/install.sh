@@ -110,7 +110,8 @@ sed -i -e "s/[ \t]*#[ \t]*\(gitlab_url:\)[ \t]*\"\(.*\)\"/\1 \"\2\/gitlab\/\"/" 
 # Modify nginx-gitlab-http.conf.erb
 NGINX="${TPLT_PATH}/nginx-gitlab-http.conf.erb"
 if ! grep -e "location[ \t]*/gitlab[ \t]*{" $NGINX >/dev/null 2>&1; then
-    sed -i -e "s/\([ \t]*location[ \t]*\/uploads\/[ \t]*{\)/  location \/gitlab {\n    alias \/opt\/gitlab\/embedded\/service\/gitlab-rails\/public;\n    try_files \$uri \$uri\/index.html \$uri.html @gitlab;\n  }\n\n\1/" $NGINX \
+    LC_GITLAB="  location \/gitlab {\n    alias \/opt\/gitlab\/embedded\/service\/gitlab-rails\/public;\n    try_files \$uri \$uri\/index.html \$uri.html @gitlab;\n  }"
+    sed -i -e "s/\([ \t]*location[ \t]*\/uploads\/[ \t]*{\)/${LC_GITLAB}\n\n\1/" $NGINX \
     || { echo; errmsg 'Error: add location /gitlab failed!'; echo; exit 1; }
 fi
 
