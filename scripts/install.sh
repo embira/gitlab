@@ -120,6 +120,7 @@ pdate; echo 'Disable gitlab embedded nginx'
 # disable gitlab embedded nginx 
 sed -i -e "s/^.*#[ \t]*\(nginx\['enable'\]\).*/\1 = false/" /etc/gitlab/gitlab.rb \
 || { echo; errmsg 'Error: disable nginx failed!'; echo; exit 1; }
+sed -i -e "s/gitlab.example.com/$DOMAIN/" /etc/gitlab/gitlab.rb
 
 pdate; echo 'Install into apache'
 #-------------------------------------------------------------
@@ -135,6 +136,7 @@ fi
 if [ ! -f '/etc/httpd/conf.d/ssl/gitlab-ssl.conf' ]; then
     cp ../etc/gitlab-ssl.conf /etc/httpd/conf.d/ssl/ \
     || { echo; errmsg 'Error: install gitlab-ssl.conf failed!'; echo; exit 1; }
+    sed -i -e "s/gitlab.example.com/$DOMAIN/" /etc/httpd/conf.d/ssl/gitlab-ssl.conf
 fi
 service httpd configtest || { echo; errmsg 'Error: apache config is error!'; echo; exit 1; }
 service httpd restart
