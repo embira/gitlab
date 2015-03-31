@@ -1,6 +1,5 @@
 # Usage Manual
-Host by Apache with https://domain/gitlab/
-
+Host by Apache with https://domain/gitlab/  
 Confirmed with GitLab 7.9.x on CentOS 6.x
 
 [TOC]
