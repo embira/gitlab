@@ -151,7 +151,7 @@ Just login as **root**, and then disable the *Signup enabled* option in *Admin a
     ```
     See also: ​http://urashita.com/archives/3074
 
-* [Host by subdirectory](subdirectory): is the better to modify the meta template then the result configure files.
+* [Host by subdirectory](subdirectory): is the better to modify the meta template than the result configure files.
 
     * `/opt/gitlab/embedded/cookbooks/gitlab/templates/default/gitlab.yml.erb`
 
