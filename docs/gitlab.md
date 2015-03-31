@@ -206,6 +206,7 @@ Just login as **root**, and then disable the *Signup enabled* option in *Admin a
     Offical installation | https://about.gitlab.com/downloads/
     Update instruction   | https://gitlab.com/gitlab-org/omnibus-gitlab/blob/master/doc/update.md
     Setting              | https://gitlab.com/gitlab-org/omnibus-gitlab/tree/master/doc/settings
+    Manual               | https://gitlab.com/gitlab-org/omnibus-gitlab/blob/master/README.md
 
 * Host by subdirectory **/gitlab**: http://qiita.com/tnamao/items/a7bb1ca868b594eaf788
 
