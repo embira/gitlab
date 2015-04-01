@@ -3,11 +3,11 @@ Host by Apache with https://domain/gitlab/
 Confirmed with GitLab 7.9.x on CentOS 6.x
 
 ### Table of Contents
-* [Installation](#Installation)
-* [Upgrade](#Upgrade)
-* [Backup](#Backup)
-* [Restore](#Restore)
-* [See Also](#See-Also)
+* [Installation](#installation)
+* [Upgrade](#upgrade)
+* [Backup](#backup)
+* [Restore](#restore)
+* [See Also](#see-also)
 
 ## Installation
 
