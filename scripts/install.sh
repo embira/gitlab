@@ -75,7 +75,7 @@ function config_host_apache() {
 
     pdate; echo 'Install apache hosting'
     SSL_CONF='/etc/httpd/conf.d/ssl.conf'
-    if pask 'Install apache mod_ssl'; then
+    if pask 'Install httpd mod_ssl'; then
         yum install -y httpd mod_ssl || { echo; errmsg 'Error: install httpd mod_ssl failed!'; echo; exit 1; }
         mkdir -p /etc/httpd/conf.d/ssl
         if ! grep -i -e "[ \t]*Include[ \t]*conf.d/ssl/\*.conf" $SSL_CONF >/dev/null 2>&1; then
