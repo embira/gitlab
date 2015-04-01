@@ -174,7 +174,7 @@ Just login as **root**, and then disable the *Signup enabled* option in *Admin a
         Add relative path */gitlab* to the tail of `gitlab_url`.
 
         ```
-        gitlab_url: "http://127.0.0.1:8080/gitlab"
+        gitlab_url: "<%= @api_url %>/gitlab/"
         ```
 
     * `/opt/gitlab/embedded/cookbooks/gitlab/templates/default/nginx-gitlab-http.conf.erb`
