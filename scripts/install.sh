@@ -36,8 +36,10 @@ function config_relative_url() {
     TPLT_PATH='/opt/gitlab/embedded/cookbooks/gitlab/templates/default'
 
     # Modify gitlab.yml.erb
-    sed -i -e "s/^[ \t]*#[ \t]*\(relative_url_root:[ \t]*\/gitlab[ \t]*\)/    \1/" ${TPLT_PATH}/gitlab.yml.erb \
+    GITLAB_YML="${TPLT_PATH}/gitlab.yml.erb"
+    sed -i -e "s/^[ \t]*#[ \t]*\(relative_url_root:[ \t]*\/gitlab[ \t]*\)/    \1/" ${GITLAB_YML} \
     || { echo; errmsg 'Error: uncomment relative_url_root failed!'; echo; exit 1; }
+    grep -H relative_url_root $GITLAB_YML
 
     # Modify unicorn.rb.erb
     UNICORN="${TPLT_PATH}/unicorn.rb.erb"
@@ -45,10 +47,13 @@ function config_relative_url() {
         echo -e "\nENV['RAILS_RELATIVE_URL_ROOT'] = \"/gitlab\"" >> $UNICORN \
         || { echo; errmsg 'Error: add RAILS_RELATIVE_URL_ROOT failed!'; echo; exit 1; }
     fi
+    grep -H "ENV\['RAILS_RELATIVE_URL_ROOT'\]" $UNICORN
 
     # Modify gitlab-shell-config.yml.erb
-    sed -i -e "s/[ \t]*\(gitlab_url:\)[ \t]*\"\(<.*>\).*\"/\1 \"\2\/gitlab\/\"/" ${TPLT_PATH}/gitlab-shell-config.yml.erb \
+    SHELL_CONFIG="${TPLT_PATH}/gitlab-shell-config.yml.erb"
+    sed -i -e "s/[ \t]*\(gitlab_url:\)[ \t]*\"\(<.*>\).*\"/\1 \"\2\/gitlab\/\"/" ${SHELL_CONFIG} \
     || { echo; errmsg 'Error: add relative path to gitlab_url'; echo; exit 1; }
+    grep -H gitlab_url $SHELL_CONFIG
 
     # Modify nginx-gitlab-http.conf.erb
     NGINX="${TPLT_PATH}/nginx-gitlab-http.conf.erb"
@@ -57,24 +62,28 @@ function config_relative_url() {
         sed -i -e "s/\([ \t]*location[ \t]*\/uploads\/[ \t]*{\)/${LC_GITLAB}\n\n\1/" $NGINX \
         || { echo; errmsg 'Error: add location /gitlab failed!'; echo; exit 1; }
     fi
+    grep -H -e "location[ \t]*/gitlab[ \t]*{" $NGINX
 }
 
 function config_host_apache() {
     pdate; echo 'Disable gitlab embedded nginx'
-    sed -i -e "s/^.*#[ \t]*\(nginx\['enable'\]\).*/\1 = false/" /etc/gitlab/gitlab.rb \
+    GITLAB_RB='/etc/gitlab/gitlab.rb'
+    sed -i -e "s/^.*#[ \t]*\(nginx\['enable'\]\).*/\1 = false/" ${GITLAB_RB} \
     || { echo; errmsg 'Error: disable nginx failed!'; echo; exit 1; }
-    sed -i -e "s/gitlab.example.com/$DOMAIN/" /etc/gitlab/gitlab.rb
+    sed -i -e "s/gitlab.example.com/$DOMAIN/" ${GITLAB_RB}
+    grep -H -e "nginx\['enable'\]" ${GITLAB_RB}
 
     pdate; echo 'Install apache hosting'
+    SSL_CONF='/etc/httpd/conf.d/ssl.conf'
     if pask 'Install apache mod_ssl'; then
         yum install -y httpd mod_ssl || { echo; errmsg 'Error: install httpd mod_ssl failed!'; echo; exit 1; }
         mkdir -p /etc/httpd/conf.d/ssl
-        SSL_CONF='/etc/httpd/conf.d/ssl.conf'
         if ! grep -i -e "[ \t]*Include[ \t]*conf.d/ssl/\*.conf" $SSL_CONF >/dev/null 2>&1; then
             sed -i -e "s/^[ \t]*\(<\/VirtualHost>\)[ \t]*/Include conf.d\/ssl\/*.conf\n\n\1/" $SSL_CONF \
             || { echo; errmsg 'Error: add *.conf to ssl.conf failed!'; echo; exit 1; }
         fi
     fi
+    grep -H Include ${SSL_CONF}
 
     if [ ! -f '/etc/httpd/conf.d/ssl/gitlab-ssl.conf' ]; then
         FPATH="$(dirname `readlink -e $0`)"
@@ -82,6 +91,7 @@ function config_host_apache() {
         || { echo; errmsg 'Error: install gitlab-ssl.conf failed!'; echo; exit 1; }
         sed -i -e "s/gitlab.example.com/$DOMAIN/" /etc/httpd/conf.d/ssl/gitlab-ssl.conf
     fi
+    ls -l /etc/httpd/conf.d/ssl/gitlab-ssl.conf
 
     service httpd configtest || { echo; errmsg 'Error: apache config is error!'; echo; exit 1; }
     service httpd restart
@@ -155,6 +165,7 @@ rpm -Uvh "$GITLAB_RPM" || {
 pdate
 if pask 'Configure for relative url /gitlab support'; then
     config_relative_url
+    echo
     if pask 'Configure for hosting by apache'; then
         config_host_apache
     fi
@@ -176,6 +187,8 @@ echo
 gitlab-ctl status
 
 pdate
+echo 'Maybe, you wanna disable the "Signup enabled" option from "Admin area" by root.'
+echo
 echo "Enjoy with https://$DOMAIN/gitlab/"
 echo
 
