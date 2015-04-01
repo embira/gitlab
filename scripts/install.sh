@@ -143,7 +143,7 @@ fi
 
 pdate; echo "Install gitlab rpm package '$GITLAB_RPM'"
 #-------------------------------------------------------------
-rpm -ivh "$GITLAB_RPM" || {
+rpm -Uvh "$GITLAB_RPM" || {
     echo 
     errmsg 'Error: install gitlab rpm package failed!'
     echo
