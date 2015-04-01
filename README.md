@@ -52,24 +52,7 @@ The [install.sh](scripts/install.sh) will be used to install and configure the *
 
 ## Upgrade
 
-1. Download the latest [omnibus package][archives]
-
-    ```
-    wget https://downloads-packages.s3.amazonaws.com/centos-6.6/gitlab-x.x.x_xxx.rpm
-    ```
-
-1. Upgrade rpm package
-
-    ```
-    sudo rpm -Uvh gitlab-x.x.x_xxx.rpm
-    ```
-    
-1. Reconfigure
-
-    ```
-    sudo gitlab-ctl reconfigure
-    sudo gitlab-ctl restart
-    ```
+Just download the latest [omnibus package][archives] and then redo the [Installation](#Installtion)
 
 ## Backup
 
