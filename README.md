@@ -6,6 +6,7 @@ Confirmed with GitLab 7.9.x on CentOS 6.x
 * [Installation](#Installation)
 * [Upgrade](#Upgrade)
 * [Backup](#Backup)
+* [Restore](#Restore)
 * [See Also](#See-Also)
 
 ## Installation
@@ -55,6 +56,9 @@ The [install.sh](scripts/install.sh) will be used to install and configure the *
 Just download the latest [omnibus package][archives] and then redo the [Installation](#Installtion)
 
 ## Backup
+
+## Restore
+See https://gitlab.com/gitlab-org/omnibus-gitlab/blob/master/README.md#restoring-an-application-backup
 
 ## See Also
 
