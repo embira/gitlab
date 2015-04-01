@@ -42,7 +42,7 @@ function config_relative_url() {
     # Modify unicorn.rb.erb
     UNICORN="${TPLT_PATH}/unicorn.rb.erb"
     if ! grep "ENV\['RAILS_RELATIVE_URL_ROOT'\]" $UNICORN >/dev/null 2>&1; then
-        echo -e "\nENV['RAILS_RELATIVE_URL_ROOT'] = \"/gitlab”" >> $UNICORN \
+        echo -e "\nENV['RAILS_RELATIVE_URL_ROOT'] = \"/gitlab\"" >> $UNICORN \
         || { echo; errmsg 'Error: add RAILS_RELATIVE_URL_ROOT failed!'; echo; exit 1; }
     fi
 
