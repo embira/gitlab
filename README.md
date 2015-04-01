@@ -56,6 +56,13 @@ The [install.sh](scripts/install.sh) will be used to install and configure the *
 Just download the latest [omnibus package][archives] and then redo the [Installation](#Installtion)
 
 ## Backup
+See https://gitlab.com/gitlab-org/omnibus-gitlab/blob/master/README.md#scheduling-a-backup
+
+* Add the following daily scheduling backup to crontab table (One week backups will be kept)
+
+    ```
+    0 4 * * * /usr/bin/gitlab-rake gitlab:backup:create
+    ```
 
 ## Restore
 See https://gitlab.com/gitlab-org/omnibus-gitlab/blob/master/README.md#restoring-an-application-backup
