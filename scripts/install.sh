@@ -73,10 +73,12 @@ fi
 DOMAIN=$1
 GITLAB_RPM=$2
 
-pdate; echo 'Install the necessary dependencies'
+pdate
 #-------------------------------------------------------------
-yum install -y openssh-server cronie \
-|| { echo; errmsg 'Error: install openssh-server & cronie failed!'; echo; exit 1; }
+if pask 'Install the necessary dependencies'; then
+    yum install -y openssh-server cronie \
+    || { echo; errmsg 'Error: install openssh-server & cronie failed!'; echo; exit 1; }
+fi
 
 if pask 'Install postfix'; then
     yum install -y postfix
@@ -86,7 +88,12 @@ fi
 
 pdate; echo "Install gitlab rpm package '$GITLAB_RPM'"
 #-------------------------------------------------------------
-rpm -ivh "$GITLAB_RPM" || { echo; errmsg 'Error: install failed!'; echo; exit 1; }
+rpm -ivh "$GITLAB_RPM" || {
+    echo 
+    errmsg 'Error: install gitlab rpm package failed!'
+    echo
+    pask 'Continue' || exit 1
+}
 
 pdate; echo 'Configure for relative url /gitlab support'
 #-------------------------------------------------------------
@@ -142,16 +149,22 @@ fi
 service httpd configtest || { echo; errmsg 'Error: apache config is error!'; echo; exit 1; }
 service httpd restart
 
-pdate; echo 'Reconfigure'
+pdate; echo 'Reconfigure gitlab'
 #-------------------------------------------------------------
 gitlab-ctl reconfigure || { echo; errmsg 'Error: reconfigure failed!'; echo; exit 1; }
+
+pdate; echo 'Restart gitlab'
+#-------------------------------------------------------------
+echo
 gitlab-ctl restart
 
 pdate; echo 'Install completed!'
 #-------------------------------------------------------------
 echo 'The following process is running.'
-gitlab-ctl status
 echo
+gitlab-ctl status
+
+pdate
 echo "Enjoy with https://$DOMAIN/gitlab/"
 echo
 
