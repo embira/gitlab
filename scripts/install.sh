@@ -32,6 +32,19 @@ function errmsg() {
     echo -e "\e[91m$1\e[0m"
 }
 
+function set_domain_and_backup_keep_time() {
+    GITLAB_RB='/etc/gitlab/gitlab.rb'
+
+    pdate; echo 'Set domain'
+    sed -i -e "s/gitlab.example.com/$DOMAIN/" ${GITLAB_RB}
+    grep -H "$DOMAIN" ${GITLAB_RB}
+    
+    pdate; echo 'Set backup keep time'
+    sed -i -e "s/^[ \t]*#[ \t]*\(gitlab_rails\['backup_keep_time'\].*\)/\1/" ${GITLAB_RB} \
+    || { echo; errmsg 'Error: set backup keep time failed!'; echo; exit 1; }
+    grep -H backup_keep_time ${GITLAB_RB}
+}
+
 function config_relative_url() {
     TPLT_PATH='/opt/gitlab/embedded/cookbooks/gitlab/templates/default'
 
@@ -70,7 +83,6 @@ function config_host_apache() {
     GITLAB_RB='/etc/gitlab/gitlab.rb'
     sed -i -e "s/^.*#[ \t]*\(nginx\['enable'\]\).*/\1 = false/" ${GITLAB_RB} \
     || { echo; errmsg 'Error: disable nginx failed!'; echo; exit 1; }
-    sed -i -e "s/gitlab.example.com/$DOMAIN/" ${GITLAB_RB}
     grep -H -e "nginx\['enable'\]" ${GITLAB_RB}
 
     pdate; echo 'Install apache hosting'
@@ -159,6 +171,8 @@ rpm -Uvh "$GITLAB_RPM" || {
     echo
     pask 'Continue' || exit 1
 }
+
+set_domain_and_backup_keep_time
 
 # Configure for relative url support
 #-------------------------------------------------------------
