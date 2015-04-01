@@ -66,7 +66,7 @@ function config_host_apache() {
     sed -i -e "s/gitlab.example.com/$DOMAIN/" /etc/gitlab/gitlab.rb
 
     pdate; echo 'Install apache hosting'
-    if pask 'Install apache mod_ssl'; then
+    if pask 'Install httpd mod_ssl'; then
         yum install -y httpd mod_ssl || { echo; errmsg 'Error: install httpd mod_ssl failed!'; echo; exit 1; }
         mkdir -p /etc/httpd/conf.d/ssl
         SSL_CONF='/etc/httpd/conf.d/ssl.conf'
