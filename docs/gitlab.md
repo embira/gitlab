@@ -166,7 +166,7 @@ Just login as **root**, and then disable the *Signup enabled* option in *Admin a
         Add the following to the end of the file.
         
         ```
-        ENV['RAILS_RELATIVE_URL_ROOT'] = "/gitlab”
+        ENV['RAILS_RELATIVE_URL_ROOT'] = "/gitlab"
         ```
 
     * `/opt/gitlab/embedded/cookbooks/gitlab/templates/default/gitlab-shell-config.yml.erb`
