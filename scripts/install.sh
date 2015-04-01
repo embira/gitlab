@@ -32,6 +32,61 @@ function errmsg() {
     echo -e "\e[91m$1\e[0m"
 }
 
+function config_relative_url() {
+    TPLT_PATH='/opt/gitlab/embedded/cookbooks/gitlab/templates/default'
+
+    # Modify gitlab.yml.erb
+    sed -i -e "s/^[ \t]*#[ \t]*\(relative_url_root:[ \t]*\/gitlab[ \t]*\)/    \1/" ${TPLT_PATH}/gitlab.yml.erb \
+    || { echo; errmsg 'Error: uncomment relative_url_root failed!'; echo; exit 1; }
+
+    # Modify unicorn.rb.erb
+    UNICORN="${TPLT_PATH}/unicorn.rb.erb"
+    if ! grep "ENV\['RAILS_RELATIVE_URL_ROOT'\]" $UNICORN >/dev/null 2>&1; then
+        echo -e "\nENV['RAILS_RELATIVE_URL_ROOT'] = \"/gitlab”" >> $UNICORN \
+        || { echo; errmsg 'Error: add RAILS_RELATIVE_URL_ROOT failed!'; echo; exit 1; }
+    fi
+
+    # Modify gitlab-shell-config.yml.erb
+    sed -i -e "s/[ \t]*#[ \t]*\(gitlab_url:\)[ \t]*\"\(.*\)\"/\1 \"\2\/gitlab\/\"/" ${TPLT_PATH}/gitlab-shell-config.yml.erb \
+    || { echo; errmsg 'Error: add relative path to gitlab_url'; echo; exit 1; }
+
+    # Modify nginx-gitlab-http.conf.erb
+    NGINX="${TPLT_PATH}/nginx-gitlab-http.conf.erb"
+    if ! grep -e "location[ \t]*/gitlab[ \t]*{" $NGINX >/dev/null 2>&1; then
+        LC_GITLAB="  location \/gitlab {\n    alias \/opt\/gitlab\/embedded\/service\/gitlab-rails\/public;\n    try_files \$uri \$uri\/index.html \$uri.html @gitlab;\n  }"
+        sed -i -e "s/\([ \t]*location[ \t]*\/uploads\/[ \t]*{\)/${LC_GITLAB}\n\n\1/" $NGINX \
+        || { echo; errmsg 'Error: add location /gitlab failed!'; echo; exit 1; }
+    fi
+}
+
+function config_host_apache() {
+    pdate; echo 'Disable gitlab embedded nginx'
+    sed -i -e "s/^.*#[ \t]*\(nginx\['enable'\]\).*/\1 = false/" /etc/gitlab/gitlab.rb \
+    || { echo; errmsg 'Error: disable nginx failed!'; echo; exit 1; }
+    sed -i -e "s/gitlab.example.com/$DOMAIN/" /etc/gitlab/gitlab.rb
+
+    pdate; echo 'Install apache hosting'
+    if pask 'Install apache mod_ssl'; then
+        yum install -y httpd mod_ssl || { echo; errmsg 'Error: install httpd mod_ssl failed!'; echo; exit 1; }
+        mkdir -p /etc/httpd/conf.d/ssl
+        SSL_CONF='/etc/httpd/conf.d/ssl.conf'
+        if ! grep -i -e "[ \t]*Include[ \t]*conf.d/ssl/\*.conf" $SSL_CONF >/dev/null 2>&1; then
+            sed -i -e "s/^[ \t]*\(<\/VirtualHost>\)[ \t]*/Include conf.d\/ssl\/*.conf\n\n\1/" $SSL_CONF \
+            || { echo; errmsg 'Error: add *.conf to ssl.conf failed!'; echo; exit 1; }
+        fi
+    fi
+
+    if [ ! -f '/etc/httpd/conf.d/ssl/gitlab-ssl.conf' ]; then
+        FPATH="$(dirname `readlink -e $0`)"
+        cp "${FPATH%/*}/etc/gitlab-ssl.conf" /etc/httpd/conf.d/ssl/ \
+        || { echo; errmsg 'Error: install gitlab-ssl.conf failed!'; echo; exit 1; }
+        sed -i -e "s/gitlab.example.com/$DOMAIN/" /etc/httpd/conf.d/ssl/gitlab-ssl.conf
+    fi
+
+    service httpd configtest || { echo; errmsg 'Error: apache config is error!'; echo; exit 1; }
+    service httpd restart
+}
+
 # Validate
 #-------------------------------------------------------------
 
@@ -95,59 +150,15 @@ rpm -ivh "$GITLAB_RPM" || {
     pask 'Continue' || exit 1
 }
 
-pdate; echo 'Configure for relative url /gitlab support'
+# Configure for relative url support
 #-------------------------------------------------------------
-TPLT_PATH='/opt/gitlab/embedded/cookbooks/gitlab/templates/default'
-
-# Modify gitlab.yml.erb
-sed -i -e "s/^[ \t]*#[ \t]*\(relative_url_root:[ \t]*\/gitlab[ \t]*\)/    \1/" ${TPLT_PATH}/gitlab.yml.erb \
-|| { echo; errmsg 'Error: uncomment relative_url_root failed!'; echo; exit 1; }
-
-# Modify unicorn.rb.erb
-UNICORN="${TPLT_PATH}/unicorn.rb.erb"
-if ! grep "ENV\['RAILS_RELATIVE_URL_ROOT'\]" $UNICORN >/dev/null 2>&1; then
-    echo -e "\nENV['RAILS_RELATIVE_URL_ROOT'] = \"/gitlab”" >> $UNICORN \
-    || { echo; errmsg 'Error: add RAILS_RELATIVE_URL_ROOT failed!'; echo; exit 1; }
-fi
-
-# Modify gitlab-shell-config.yml.erb
-sed -i -e "s/[ \t]*#[ \t]*\(gitlab_url:\)[ \t]*\"\(.*\)\"/\1 \"\2\/gitlab\/\"/" ${TPLT_PATH}/gitlab-shell-config.yml.erb \
-|| { echo; errmsg 'Error: add relative path to gitlab_url'; echo; exit 1; }
-
-# Modify nginx-gitlab-http.conf.erb
-NGINX="${TPLT_PATH}/nginx-gitlab-http.conf.erb"
-if ! grep -e "location[ \t]*/gitlab[ \t]*{" $NGINX >/dev/null 2>&1; then
-    LC_GITLAB="  location \/gitlab {\n    alias \/opt\/gitlab\/embedded\/service\/gitlab-rails\/public;\n    try_files \$uri \$uri\/index.html \$uri.html @gitlab;\n  }"
-    sed -i -e "s/\([ \t]*location[ \t]*\/uploads\/[ \t]*{\)/${LC_GITLAB}\n\n\1/" $NGINX \
-    || { echo; errmsg 'Error: add location /gitlab failed!'; echo; exit 1; }
-fi
-
-pdate; echo 'Disable gitlab embedded nginx'
-#-------------------------------------------------------------
-# disable gitlab embedded nginx 
-sed -i -e "s/^.*#[ \t]*\(nginx\['enable'\]\).*/\1 = false/" /etc/gitlab/gitlab.rb \
-|| { echo; errmsg 'Error: disable nginx failed!'; echo; exit 1; }
-sed -i -e "s/gitlab.example.com/$DOMAIN/" /etc/gitlab/gitlab.rb
-
-pdate; echo 'Install into apache'
-#-------------------------------------------------------------
-if pask 'Install apache mod_ssl'; then
-    yum install -y httpd mod_ssl || { echo; errmsg 'Error: install httpd mod_ssl failed!'; echo; exit 1; }
-    mkdir -p /etc/httpd/conf.d/ssl
-    SSL_CONF='/etc/httpd/conf.d/ssl.conf'
-    if ! grep -i -e "[ \t]*Include[ \t]*conf.d/ssl/\*.conf" $SSL_CONF >/dev/null 2>&1; then
-        sed -i -e "s/^[ \t]*\(<\/VirtualHost>\)[ \t]*/Include conf.d\/ssl\/*.conf\n\n\1/" $SSL_CONF \
-        || { echo; errmsg 'Error: add *.conf to ssl.conf failed!'; echo; exit 1; }
+pdate
+if pask 'Configure for relative url /gitlab support'; then
+    config_relative_url
+    if pask 'Configure for hosting by apache'; then
+        config_host_apache
     fi
 fi
-if [ ! -f '/etc/httpd/conf.d/ssl/gitlab-ssl.conf' ]; then
-    FPATH="$(dirname `readlink -e $0`)"
-    cp "${FPATH%/*}/etc/gitlab-ssl.conf" /etc/httpd/conf.d/ssl/ \
-    || { echo; errmsg 'Error: install gitlab-ssl.conf failed!'; echo; exit 1; }
-    sed -i -e "s/gitlab.example.com/$DOMAIN/" /etc/httpd/conf.d/ssl/gitlab-ssl.conf
-fi
-service httpd configtest || { echo; errmsg 'Error: apache config is error!'; echo; exit 1; }
-service httpd restart
 
 pdate; echo 'Reconfigure gitlab'
 #-------------------------------------------------------------
