@@ -119,7 +119,7 @@ function config_host_apache() {
 if ! grep -ie '.*CentOS.* 6.[0-9]\+ .*' /etc/system-release >/dev/null 2>&1; then
     echo
     echo 'Only for CentOS 6.x .'
-    echo "But this system is `[ cat /etc/system-release 2>/dev/null ] || echo unknown`."
+    echo "But this system is `cat /etc/system-release 2>/dev/null || echo unknown`."
     echo
     exit 1
 fi
