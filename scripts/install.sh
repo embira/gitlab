@@ -47,7 +47,7 @@ function config_relative_url() {
     fi
 
     # Modify gitlab-shell-config.yml.erb
-    sed -i -e "s/[ \t]*#[ \t]*\(gitlab_url:\)[ \t]*\"\(.*\)\"/\1 \"\2\/gitlab\/\"/" ${TPLT_PATH}/gitlab-shell-config.yml.erb \
+    sed -i -e "s/[ \t]*\(gitlab_url:\)[ \t]*\"\(<.*>\).*\"/\1 \"\2\/gitlab\/\"/" ${TPLT_PATH}/gitlab-shell-config.yml.erb \
     || { echo; errmsg 'Error: add relative path to gitlab_url'; echo; exit 1; }
 
     # Modify nginx-gitlab-http.conf.erb
