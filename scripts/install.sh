@@ -196,7 +196,7 @@ gitlab-ctl restart
 
 pdate; echo 'Install completed!'
 #-------------------------------------------------------------
-echo 'The following process is running.'
+echo 'The following processes are running.'
 echo
 gitlab-ctl status
 
