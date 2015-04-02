@@ -36,13 +36,14 @@ function set_domain_and_backup_keep_time() {
     GITLAB_RB='/etc/gitlab/gitlab.rb'
 
     pdate; echo 'Set domain'
+    sed -i -e "s/^[ \t]*\(external_url\)[ \t]*.*/\1 'https:\/\/$DOMAIN'/" ${GITLAB_RB}
     sed -i -e "s/gitlab.example.com/$DOMAIN/" ${GITLAB_RB}
-    grep -H "$DOMAIN" ${GITLAB_RB}
-    
+    echo; echo $GITLAB_RB; grep "$DOMAIN" ${GITLAB_RB} | grep -v ^#
+
     pdate; echo 'Set backup keep time'
     sed -i -e "s/^[ \t]*#[ \t]*\(gitlab_rails\['backup_keep_time'\].*\)/\1/" ${GITLAB_RB} \
     || { echo; errmsg 'Error: set backup keep time failed!'; echo; exit 1; }
-    grep -H backup_keep_time ${GITLAB_RB}
+    echo; echo $GITLAB_RB; grep backup_keep_time ${GITLAB_RB} | grep -v ^#
 }
 
 function config_relative_url() {
@@ -52,7 +53,7 @@ function config_relative_url() {
     GITLAB_YML="${TPLT_PATH}/gitlab.yml.erb"
     sed -i -e "s/^[ \t]*#[ \t]*\(relative_url_root:[ \t]*\/gitlab[ \t]*\)/    \1/" ${GITLAB_YML} \
     || { echo; errmsg 'Error: uncomment relative_url_root failed!'; echo; exit 1; }
-    grep -H relative_url_root $GITLAB_YML
+    echo; echo $GITLAB_YML; grep relative_url_root $GITLAB_YML | grep -v ^#
 
     # Modify unicorn.rb.erb
     UNICORN="${TPLT_PATH}/unicorn.rb.erb"
@@ -60,13 +61,13 @@ function config_relative_url() {
         echo -e "\nENV['RAILS_RELATIVE_URL_ROOT'] = \"/gitlab\"" >> $UNICORN \
         || { echo; errmsg 'Error: add RAILS_RELATIVE_URL_ROOT failed!'; echo; exit 1; }
     fi
-    grep -H "ENV\['RAILS_RELATIVE_URL_ROOT'\]" $UNICORN
+    echo; echo $UNICORN; grep "ENV\['RAILS_RELATIVE_URL_ROOT'\]" $UNICORN | grep -v ^#
 
     # Modify gitlab-shell-config.yml.erb
     SHELL_CONFIG="${TPLT_PATH}/gitlab-shell-config.yml.erb"
     sed -i -e "s/[ \t]*\(gitlab_url:\)[ \t]*\"\(<.*>\).*\"/\1 \"\2\/gitlab\/\"/" ${SHELL_CONFIG} \
     || { echo; errmsg 'Error: add relative path to gitlab_url'; echo; exit 1; }
-    grep -H gitlab_url $SHELL_CONFIG
+    echo; echo $SHELL_CONFIG; grep gitlab_url $SHELL_CONFIG | grep -v ^#
 
     # Modify nginx-gitlab-http.conf.erb
     NGINX="${TPLT_PATH}/nginx-gitlab-http.conf.erb"
@@ -75,7 +76,7 @@ function config_relative_url() {
         sed -i -e "s/\([ \t]*location[ \t]*\/uploads\/[ \t]*{\)/${LC_GITLAB}\n\n\1/" $NGINX \
         || { echo; errmsg 'Error: add location /gitlab failed!'; echo; exit 1; }
     fi
-    grep -H -e "location[ \t]*/gitlab[ \t]*{" $NGINX
+    echo; echo $NGINX; grep -e "location[ \t]*/gitlab[ \t]*{" $NGINX | grep -v ^#
 }
 
 function config_host_apache() {
@@ -83,7 +84,7 @@ function config_host_apache() {
     GITLAB_RB='/etc/gitlab/gitlab.rb'
     sed -i -e "s/^.*#[ \t]*\(nginx\['enable'\]\).*/\1 = false/" ${GITLAB_RB} \
     || { echo; errmsg 'Error: disable nginx failed!'; echo; exit 1; }
-    grep -H -e "nginx\['enable'\]" ${GITLAB_RB}
+    echo; echo $GITLAB_RB; grep -e "nginx\['enable'\]" ${GITLAB_RB} | grep -v ^#
 
     pdate; echo 'Install apache hosting'
     SSL_CONF='/etc/httpd/conf.d/ssl.conf'
@@ -95,7 +96,7 @@ function config_host_apache() {
             || { echo; errmsg 'Error: add *.conf to ssl.conf failed!'; echo; exit 1; }
         fi
     fi
-    grep -H Include ${SSL_CONF}
+    echo; echo $SSL_CONF; grep Include ${SSL_CONF} | grep -v ^#
 
     if [ ! -f '/etc/httpd/conf.d/ssl/gitlab-ssl.conf' ]; then
         FPATH="$(dirname `readlink -e $0`)"
