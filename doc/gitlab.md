@@ -97,7 +97,7 @@ Components will be installed
 
 See also: https://gitlab.com/gitlab-org/omnibus-gitlab/blob/master/doc/settings/nginx.md#enable-https
 
-1. Create SSL/TLS certification & key (see [tls.md](./docs/tls.md))
+1. Create SSL/TLS certification & key (see [tls.md](./doc/tls.md))
 
 1. Deploy `domain.key` & `domain.crt` to `/etc/gitlab/ssl`
 

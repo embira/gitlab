@@ -69,6 +69,6 @@ See https://gitlab.com/gitlab-org/omnibus-gitlab/blob/master/README.md#restoring
 
 ## See Also
 
-* Usage Summary of GitLab - [gitlab.md](./docs/gitlab.md)
+* Usage Summary of GitLab - [gitlab.md](./doc/gitlab.md)
 
 [archives]: https://about.gitlab.com/downloads/archives/
