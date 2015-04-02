@@ -29,7 +29,9 @@ function pask() {
 
 # $1: message
 function errmsg() {
+    echo
     echo -e "\e[91m$1\e[0m"
+    echo
 }
 
 function set_domain_and_backup_keep_time() {
@@ -42,7 +44,7 @@ function set_domain_and_backup_keep_time() {
 
     pdate; echo 'Set backup keep time'
     sed -i -e "s/^[ \t]*#[ \t]*\(gitlab_rails\['backup_keep_time'\].*\)/\1/" ${GITLAB_RB} \
-    || { echo; errmsg 'Error: set backup keep time failed!'; echo; exit 1; }
+    || { errmsg 'Error: set backup keep time failed!'; exit 1; }
     echo; echo $GITLAB_RB; grep backup_keep_time ${GITLAB_RB} | grep -v ^#
 }
 
@@ -52,21 +54,21 @@ function config_relative_url() {
     # Modify gitlab.yml.erb
     GITLAB_YML="${TPLT_PATH}/gitlab.yml.erb"
     sed -i -e "s/^[ \t]*#[ \t]*\(relative_url_root:[ \t]*\/gitlab[ \t]*\)/    \1/" ${GITLAB_YML} \
-    || { echo; errmsg 'Error: uncomment relative_url_root failed!'; echo; exit 1; }
+    || { errmsg 'Error: uncomment relative_url_root failed!'; exit 1; }
     echo; echo $GITLAB_YML; grep relative_url_root $GITLAB_YML | grep -v ^#
 
     # Modify unicorn.rb.erb
     UNICORN="${TPLT_PATH}/unicorn.rb.erb"
     if ! grep "ENV\['RAILS_RELATIVE_URL_ROOT'\]" $UNICORN >/dev/null 2>&1; then
         echo -e "\nENV['RAILS_RELATIVE_URL_ROOT'] = \"/gitlab\"" >> $UNICORN \
-        || { echo; errmsg 'Error: add RAILS_RELATIVE_URL_ROOT failed!'; echo; exit 1; }
+        || { errmsg 'Error: add RAILS_RELATIVE_URL_ROOT failed!'; exit 1; }
     fi
     echo; echo $UNICORN; grep "ENV\['RAILS_RELATIVE_URL_ROOT'\]" $UNICORN | grep -v ^#
 
     # Modify gitlab-shell-config.yml.erb
     SHELL_CONFIG="${TPLT_PATH}/gitlab-shell-config.yml.erb"
     sed -i -e "s/[ \t]*\(gitlab_url:\)[ \t]*\"\(<.*>\).*\"/\1 \"\2\/gitlab\/\"/" ${SHELL_CONFIG} \
-    || { echo; errmsg 'Error: add relative path to gitlab_url'; echo; exit 1; }
+    || { errmsg 'Error: add relative path to gitlab_url'; exit 1; }
     echo; echo $SHELL_CONFIG; grep gitlab_url $SHELL_CONFIG | grep -v ^#
 
     # Modify nginx-gitlab-http.conf.erb
@@ -74,7 +76,7 @@ function config_relative_url() {
     if ! grep -e "location[ \t]*/gitlab[ \t]*{" $NGINX >/dev/null 2>&1; then
         LC_GITLAB="  location \/gitlab {\n    alias \/opt\/gitlab\/embedded\/service\/gitlab-rails\/public;\n    try_files \$uri \$uri\/index.html \$uri.html @gitlab;\n  }"
         sed -i -e "s/\([ \t]*location[ \t]*\/uploads\/[ \t]*{\)/${LC_GITLAB}\n\n\1/" $NGINX \
-        || { echo; errmsg 'Error: add location /gitlab failed!'; echo; exit 1; }
+        || { errmsg 'Error: add location /gitlab failed!'; exit 1; }
     fi
     echo; echo $NGINX; grep -e "location[ \t]*/gitlab[ \t]*{" $NGINX | grep -v ^#
 }
@@ -83,17 +85,17 @@ function config_host_apache() {
     pdate; echo 'Disable gitlab embedded nginx'
     GITLAB_RB='/etc/gitlab/gitlab.rb'
     sed -i -e "s/^.*#[ \t]*\(nginx\['enable'\]\).*/\1 = false/" ${GITLAB_RB} \
-    || { echo; errmsg 'Error: disable nginx failed!'; echo; exit 1; }
+    || { errmsg 'Error: disable nginx failed!'; exit 1; }
     echo; echo $GITLAB_RB; grep -e "nginx\['enable'\]" ${GITLAB_RB} | grep -v ^#
 
     pdate; echo 'Install apache hosting'
     SSL_CONF='/etc/httpd/conf.d/ssl.conf'
     if pask 'Install httpd mod_ssl'; then
-        yum install -y httpd mod_ssl || { echo; errmsg 'Error: install httpd mod_ssl failed!'; echo; exit 1; }
+        yum install -y httpd mod_ssl || { errmsg 'Error: install httpd mod_ssl failed!'; exit 1; }
         mkdir -p /etc/httpd/conf.d/ssl
         if ! grep -i -e "[ \t]*Include[ \t]*conf.d/ssl/\*.conf" $SSL_CONF >/dev/null 2>&1; then
             sed -i -e "s/^[ \t]*\(<\/VirtualHost>\)[ \t]*/Include conf.d\/ssl\/*.conf\n\n\1/" $SSL_CONF \
-            || { echo; errmsg 'Error: add *.conf to ssl.conf failed!'; echo; exit 1; }
+            || { errmsg 'Error: add *.conf to ssl.conf failed!'; exit 1; }
         fi
     fi
     echo; echo $SSL_CONF; grep Include ${SSL_CONF} | grep -v ^#
@@ -101,12 +103,12 @@ function config_host_apache() {
     if [ ! -f '/etc/httpd/conf.d/ssl/gitlab-ssl.conf' ]; then
         FPATH="$(dirname `readlink -e $0`)"
         cp "${FPATH%/*}/etc/gitlab-ssl.conf" /etc/httpd/conf.d/ssl/ \
-        || { echo; errmsg 'Error: install gitlab-ssl.conf failed!'; echo; exit 1; }
+        || { errmsg 'Error: install gitlab-ssl.conf failed!'; exit 1; }
         sed -i -e "s/gitlab.example.com/$DOMAIN/" /etc/httpd/conf.d/ssl/gitlab-ssl.conf
     fi
     ls -l /etc/httpd/conf.d/ssl/gitlab-ssl.conf
 
-    service httpd configtest || { echo; errmsg 'Error: apache config is error!'; echo; exit 1; }
+    service httpd configtest || { errmsg 'Error: apache config is error!'; exit 1; }
     service httpd restart
 }
 
@@ -114,25 +116,7 @@ function config_host_apache() {
 #-------------------------------------------------------------
 
 # Validate user
-[ 'root' = "$USER" ] || { echo; echo 'Try sudo!'; echo; exit 1; }
-
-# validate os
-if ! grep -ie '.*CentOS.* 6.[0-9]\+ .*' /etc/system-release >/dev/null 2>&1; then
-    echo
-    echo 'Only for CentOS 6.x .'
-    echo "But this system is `cat /etc/system-release 2>/dev/null || echo unknown`."
-    echo
-    exit 1
-fi
-
-# Validate system platform
-if [ "`uname -i`" != 'x86_64' ]; then
-    echo
-    echo 'Only for x86_64 platform.'
-    echo "But this platform is `uname -i`."
-    echo
-    exit 1
-fi
+[ 'root' = "$USER" ] || { errmsg 'Try sudo!'; exit 1; }
 
 # Validate parameters count
 if [ $# -ne 2 ]; then
@@ -144,7 +128,9 @@ if [ $# -ne 2 ]; then
 fi
 
 # validate gitlab rpm package
-[ -f "$2" ] || { echo; errmsg "The [$2] does not exits!"; echo; exit 1; }
+[ -f "$2" ] || { errmsg "Error: The [$2] does not exits!"; exit 1; }
+echo $2 | grep "`uname -i`" >/dev/null 2>&1 || { errmsg "Error: [$2] does not support `uname -i`!"; exit 1; }
+which rpm >/dev/null 2>&1 || { errmsg 'Error: rpm command not found!'; exit 1; }
 
 # Start installation
 #-------------------------------------------------------------
@@ -154,8 +140,7 @@ GITLAB_RPM=$2
 pdate
 #-------------------------------------------------------------
 if pask 'Install the necessary dependencies'; then
-    yum install -y openssh-server cronie \
-    || { echo; errmsg 'Error: install openssh-server & cronie failed!'; echo; exit 1; }
+    yum install -y openssh-server cronie || { errmsg 'Error: install openssh-server & cronie failed!'; exit 1; }
 fi
 
 if pask 'Install postfix'; then
@@ -167,9 +152,7 @@ fi
 pdate; echo "Install gitlab rpm package '$GITLAB_RPM'"
 #-------------------------------------------------------------
 rpm -Uvh "$GITLAB_RPM" || {
-    echo 
     errmsg 'Error: install gitlab rpm package failed!'
-    echo
     pask 'Continue' || exit 1
 }
 
@@ -188,7 +171,7 @@ fi
 
 pdate; echo 'Reconfigure gitlab'
 #-------------------------------------------------------------
-gitlab-ctl reconfigure || { echo; errmsg 'Error: reconfigure failed!'; echo; exit 1; }
+gitlab-ctl reconfigure || { errmsg 'Error: reconfigure failed!'; exit 1; }
 
 pdate; echo 'Restart gitlab'
 #-------------------------------------------------------------
