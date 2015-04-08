@@ -34,18 +34,26 @@ function errmsg() {
     echo
 }
 
-function set_domain_and_backup_keep_time() {
+# $1: domain
+# $2: optional, data dir
+function set_etc_gitlab_rb() {
     GITLAB_RB='/etc/gitlab/gitlab.rb'
 
     pdate; echo 'Set domain'
-    sed -i -e "s/^[ \t]*\(external_url\)[ \t]*.*/\1 'https:\/\/$DOMAIN'/" ${GITLAB_RB}
-    sed -i -e "s/gitlab.example.com/$DOMAIN/" ${GITLAB_RB}
-    echo; echo $GITLAB_RB; grep "$DOMAIN" ${GITLAB_RB} | grep -v ^#
+    sed -i -e "s/^[ \t]*\(external_url\)[ \t]*.*/\1 'https:\/\/$1'/" ${GITLAB_RB}
+    sed -i -e "s/gitlab.example.com/$1/" ${GITLAB_RB}
+    echo; echo $GITLAB_RB; grep "$1" ${GITLAB_RB} | grep -v ^#
 
     pdate; echo 'Set backup keep time'
     sed -i -e "s/^[ \t]*#[ \t]*\(gitlab_rails\['backup_keep_time'\].*\)/\1/" ${GITLAB_RB} \
     || { errmsg 'Error: set backup keep time failed!'; exit 1; }
     echo; echo $GITLAB_RB; grep backup_keep_time ${GITLAB_RB} | grep -v ^#
+
+    if [ $# -gt 1 ]; then
+        pdate: echo 'Set data dir'
+        sed -i -e 's|^.*[ \t]*\(git_data_dir\)[ \t]*.*|\1 "'"$2"'"|g' ${GITLAB_RB}
+        echo; echo $GITLAB_RB; grep git_data_dir ${GITLAB_RB} | grep -v ^#
+    fi
 }
 
 function config_relative_url() {
@@ -119,10 +127,10 @@ function config_host_apache() {
 [ 'root' = "$USER" ] || { errmsg 'Try sudo!'; exit 1; }
 
 # Validate parameters count
-if [ $# -ne 2 ]; then
+if [ $# -lt 2 ]; then
     echo
     echo 'Usage:'
-    echo "        `basename $0` <domain> <gitlab-x.x.x_xxx.rpm>"
+    echo "        `basename $0` <domain> <gitlab-x.x.x_xxx.rpm> [data_dir]"
     echo
     exit 1
 fi
@@ -134,8 +142,18 @@ which rpm >/dev/null 2>&1 || { errmsg 'Error: rpm command not found!'; exit 1; }
 
 # Start installation
 #-------------------------------------------------------------
-DOMAIN=$1
-GITLAB_RPM=$2
+DOMAIN="$1"
+GITLAB_RPM="$2"
+GITLAB_DATADIR=''
+if [ $# -gt 2 ]; then
+    pdate
+    if pask "Do you want to install data dir to [$3]"; then
+        if [ -d "$3" ]; then
+            pask "[$3] had exist! Do you want to overwrite it" || { echo; echo 'Goodbye.'; echo; exit 1; }
+        fi
+    fi
+    GITLAB_DATADIR="$3"
+fi
 
 pdate
 #-------------------------------------------------------------
@@ -156,7 +174,7 @@ rpm -Uvh "$GITLAB_RPM" || {
     pask 'Continue' || exit 1
 }
 
-set_domain_and_backup_keep_time
+set_etc_gitlab_rb $DOMAIN $GITLAB_DATADIR
 
 # Configure for relative url support
 #-------------------------------------------------------------
