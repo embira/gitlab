@@ -50,9 +50,13 @@ function set_etc_gitlab_rb() {
     echo; echo $GITLAB_RB; grep backup_keep_time ${GITLAB_RB} | grep -v ^#
 
     if [ $# -gt 1 ]; then
-        pdate: echo 'Set data dir'
+        pdate; echo 'Set data dir'
         sed -i -e 's|^.*[ \t]*\(git_data_dir\)[ \t]*.*|\1 "'"$2"'"|g' ${GITLAB_RB}
         echo; echo $GITLAB_RB; grep git_data_dir ${GITLAB_RB} | grep -v ^#
+
+        pdate; echo 'Set backup data dir'
+        sed -i -e "s|^.*[ \t]*\(gitlab_rails\['backup_path'\]\)[ \t]*.*|\1 = \"""$2/backups"'"|g' ${GITLAB_RB}
+        echo; echo $GITLAB_RB; grep backup_path ${GITLAB_RB} | grep -v ^#
     fi
 }
 
