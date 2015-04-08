@@ -31,7 +31,7 @@ The [install.sh](scripts/install.sh) will be used to install and configure the *
 1. Run [install.sh](scripts/install.sh)
 
     ```
-    sudo install.sh domain gitlab-x.x.x_xxx.rpm
+    sudo install.sh domain gitlab-x.x.x_xxx.rpm [git_data_dir]
     ```
     * Output
     
