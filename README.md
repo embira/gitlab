@@ -61,7 +61,7 @@ See https://gitlab.com/gitlab-org/omnibus-gitlab/blob/master/README.md#schedulin
 * Add the following daily scheduling backup to crontab table (One week backups will be kept)
 
     ```
-    sudo crontab -u git -e
+    sudo crontab -e
     ```
     ```
     0 4 * * * /usr/bin/gitlab-rake gitlab:backup:create >/var/opt/gitlab/backups/gitlab-backup.log 2>&1
