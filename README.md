@@ -51,12 +51,28 @@ The [install.sh](scripts/install.sh) will be used to install and configure the *
     Password: 5iveL!fe
     ```
 
+## Save Memory
+
+Defaultly, 2G memory is recommended (see [requirments](http://doc.gitlab.com/ce/install/requirements.html#memory)).  
+The following setting can save memory to about 700M .
+
+    ```
+    unicorn['worker_timeout'] = 60
+    unicorn['worker_processes'] = 2
+    ```
+
 ## Upgrade
 
 Just download the latest [omnibus package][archives] and then redo the [Installation](#Installtion)
 
 ## Backup
 See https://gitlab.com/gitlab-org/omnibus-gitlab/blob/master/README.md#scheduling-a-backup
+
+* Backup keep time, by default, it is 7 days = 608400 seconds. It can be changed to 1 days 86400 seconds.
+
+    ```
+    gitlab.rb:gitlab_rails['backup_keep_time'] = 86400
+    ```
 
 * Add the following daily scheduling backup to crontab table (One week backups will be kept)
 
