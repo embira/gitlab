@@ -196,6 +196,33 @@ Just login as **root**, and then disable the *Signup enabled* option in *Admin a
         sudo gitlab-ctl reconfigure
         ```
 
+## Customize Home Page & Title
+
+Goto `/opt/gitlab/embedded/service/gitlab-rails/app/views/layouts`:
+
+* Home page: `devise.html.haml`
+
+   ```
+   %h1 ...
+   ...
+       %h3 ...
+       
+       %p
+         ... <br/>
+         ...
+   ```
+
+* Title: `_head.html.haml`
+
+   ```
+   ...
+     %title
+    = "#{title} | " if defined?(title)
+    Gitlab ===> GitLab@CleverRock
+  = favicon_link_tag 'favicon.ico'
+  ...
+   ```
+
 ## References
 
 * GitLab offical site: https://about.gitlab.com/
@@ -207,9 +234,10 @@ Just login as **root**, and then disable the *Signup enabled* option in *Admin a
     Update instruction   | https://gitlab.com/gitlab-org/omnibus-gitlab/blob/master/doc/update.md
     Setting              | https://gitlab.com/gitlab-org/omnibus-gitlab/tree/master/doc/settings
     Manual               | https://gitlab.com/gitlab-org/omnibus-gitlab/blob/master/README.md
+    Requirment           | http://doc.gitlab.com/ce/install/requirements.html
 
 * Host by subdirectory **/gitlab**: http://qiita.com/tnamao/items/a7bb1ca868b594eaf788
-
+* Custom GitLab login page: http://axilleas.me/en/blog/2014/custom-gitlab-login-page/ (see also: https://kovah.me/customize-gitlab-installation/)
 
 [archives]: https://about.gitlab.com/downloads/archives/
 [subdirectory]: http://qiita.com/tnamao/items/a7bb1ca868b594eaf788
