@@ -232,6 +232,19 @@ Goto `/opt/gitlab/embedded/service/gitlab-rails/app/views/layouts`:
    ...
    ```
 
+## Save Memory
+
+* Create **swap** for AMI instance if need
+   
+   ```
+   # dd if=/dev/zero of=/var/swap bs=1M count=2048
+   # chmod 600 /var/swap
+   # mkswap /var/swap
+   # swapon /var/swap
+   # echo '/var/swap swap swap defaults 0 0' >> /etc/fstab && cat /etc/fstab
+   ```
+
+
 ## References
 
 * GitLab offical site: https://about.gitlab.com/
