@@ -203,13 +203,22 @@ Goto `/opt/gitlab/embedded/service/gitlab-rails/app/views/layouts`:
 * Home page: `devise.html.haml`
 
    ```
-   %h1 ...
-   ...
-       %h3 ...
-       
-       %p
-         ... <br/>
-         ...
+          .col-sm-7.brand-holder.pull-left
+            %h1 GitLab of Clever Rock
+
+            - if brand_item
+              = brand_image
+              = brand_text
+            - else
+              %h3 Enjoy freedom and collaborate on code
+
+              %p
+                Manage git repositories and perform code reviews to
+                enhance collaboration with merge requests.
+                Each project can also have an issue tracker and a wiki.
+
+            - if extra_sign_in_text.present?
+              = markdown(extra_sign_in_text)
    ```
 
 * Title: `_head.html.haml`
@@ -219,8 +228,8 @@ Goto `/opt/gitlab/embedded/service/gitlab-rails/app/views/layouts`:
      %title
     = "#{title} | " if defined?(title)
     Gitlab ===> GitLab@CleverRock
-  = favicon_link_tag 'favicon.ico'
-  ...
+    = favicon_link_tag 'favicon.ico'
+   ...
    ```
 
 ## References
