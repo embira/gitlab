@@ -204,7 +204,7 @@ Goto `/opt/gitlab/embedded/service/gitlab-rails/app/views/layouts`:
 
    ```
           .col-sm-7.brand-holder.pull-left
-            %h1 GitLab of Clever Rock
+            %h1 GitLab @ Name
 
             - if brand_item
               = brand_image
@@ -227,7 +227,7 @@ Goto `/opt/gitlab/embedded/service/gitlab-rails/app/views/layouts`:
    ...
      %title
     = "#{title} | " if defined?(title)
-    Gitlab ===> GitLab@CleverRock
+    Gitlab ===> GitLab@Name
     = favicon_link_tag 'favicon.ico'
    ...
    ```
