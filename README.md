@@ -54,12 +54,10 @@ The [install.sh](scripts/install.sh) will be used to install and configure the *
 ## Save Memory
 
 Defaultly, 2G memory is recommended (see [requirments](http://doc.gitlab.com/ce/install/requirements.html#memory)).  
-The following setting can save memory to about 700M .
+The following setting in `/etc/gitlab/gitlab.rb` can save memory to about 700M .
 
-    ```
     unicorn['worker_timeout'] = 60
     unicorn['worker_processes'] = 2
-    ```
 
 ## Upgrade
 
