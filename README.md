@@ -61,7 +61,7 @@ The following setting in `/etc/gitlab/gitlab.rb` can save memory to about 700M .
 
 ## Upgrade
 
-Just download the latest [omnibus package][archives] and then redo the [Installation](#Installtion)
+Just download the latest [omnibus package][archives] and then redo the [Installation](#Installation)
 
 ## Backup
 See https://gitlab.com/gitlab-org/omnibus-gitlab/blob/master/README.md#scheduling-a-backup
