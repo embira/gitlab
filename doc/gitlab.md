@@ -1,7 +1,7 @@
 # Usage Summary of GitLab 
 
 * Confirmed with
-    * GitLab 7.9.x
+    * GitLab 7.9.x, 7.10.x
     * CentOS 6.x
 
 ---
